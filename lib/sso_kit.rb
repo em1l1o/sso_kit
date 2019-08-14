@@ -6,7 +6,7 @@ class SsoKit
 
   def verify_token
     incoming_request = eval('request', @binding)
-    token = incoming_request.cookies[:token]
+    token = incoming_request.cookies['token']
     # TODO (zhangjiayuan): 考虑对 raise 的异常进行归类整理
     raise 'cookie 未带有 token' if token.blank?
     raise '验证 token 失败' unless verify(token)
@@ -22,7 +22,7 @@ class SsoKit
     result = JSON.parse response.body
     return false if response.code != 200
     # 防止中间人攻击，验证返回的 token 是否与传出的一致
-    return false if token != result[:token]
+    return false if token != result['token']
     true
   end
 end
