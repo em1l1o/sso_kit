@@ -1,5 +1,5 @@
 # sso client rails edition
-module SsoKit
+class SsoKit
   def initialize(binding)
     @binding = binding
   end
