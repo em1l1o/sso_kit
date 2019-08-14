@@ -18,7 +18,7 @@ class SsoKit
     # TODO (zhangjiayuan): use uri config file
     url = "https://xiguacity.cn/server/auth/touch-session"
     data = { token: token }
-    response = Http.new(url, 'post', data).run
+    response = HttpHandler.new(url, 'post', data).run
     result = JSON.parse response.body
     return false if response.code != 200
     # 防止中间人攻击，验证返回的 token 是否与传出的一致
@@ -27,7 +27,7 @@ class SsoKit
   end
 end
 
-class Http
+class HttpHandler
   def initialize(url, method, data)
     uri = URI(url)
     @request = eval("Net::HTTP::#{method.capitalize}").new(uri)
