@@ -32,7 +32,7 @@ class SsoKit
     true
   end
 
-  def token(some_id)
+  def self.token(some_id)
     # TODO (zhangjiayuan): use uri config file
     url = "https://xiguacity.cn/server/auth/create-session"
     data = { some_id: some_id }
