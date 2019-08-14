@@ -27,7 +27,7 @@ class SsoKit
   end
 end
 
-module Http
+class Http
   def initialize(url, method, data)
     uri = URI(url)
     @request = eval("Net::HTTP::#{method.capitalize}").new(uri)
