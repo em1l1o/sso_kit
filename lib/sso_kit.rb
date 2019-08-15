@@ -13,11 +13,6 @@ class SsoKit
     true
   end
 
-  # 请求 token
-  def self.request_token(some_id)
-    token(some_id)
-  end
-
   private
 
   def verify(token)
@@ -25,21 +20,11 @@ class SsoKit
     url = "https://xiguacity.cn/server/auth/touch-session"
     data = { token: token }
     response = HttpHandler.new(url, 'post', data).run
-    return false if response.code != 200
     result = HttpHandler.parse_response response
+    return false if result['status'] != 200
     # 防止中间人攻击，验证返回的 token 是否与传出的一致
     return false if token != result['token']
     true
-  end
-
-  def self.token(some_id)
-    # TODO (zhangjiayuan): use uri config file
-    url = "https://xiguacity.cn/server/auth/create-session"
-    data = { some_id: some_id }
-    response = HttpHandler.new(url, 'post', data).run
-    return nil if response.code != 200
-    result = HttpHandler.parse_response response
-    result['token']
   end
 end
 
@@ -56,6 +41,8 @@ class HttpHandler
     Net::HTTP.start(@request.uri.host, @request.uri.port, use_ssl: use_ssl, read_timeout: 5) do |http|
       http.request @request
     end
+  rescue
+    nil
   end
 
   def self.parse_response(response)
