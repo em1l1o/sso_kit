@@ -32,7 +32,7 @@ class SsoKit
 end
 
 class HttpHandler
-  def initialize(url, method, data: nil)
+  def initialize(url, method, data: {})
     uri = URI(url)
     @request = eval("Net::HTTP::#{method.capitalize}").new(uri)
     @request.set_form_data(data)
