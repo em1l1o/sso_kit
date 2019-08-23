@@ -16,15 +16,19 @@ class SsoKit
   private
 
   def verify(token)
-    # TODO (zhangjiayuan): use uri config file
-    url = "https://xiguacity.cn/server/auth/touch-session"
+    # TODO (zhangjiayuan): use url config file
+    url = "#{host}/server/auth/touch-session"
     data = { token: token }
     response = HttpHandler.new(url, 'get', data).run
     result = HttpHandler.parse_response response
     return false if result['status'] != 200
     # 防止中间人攻击，验证返回的 token 是否与传出的一致
-    return false if token != result['token']
+    return false if token != result.dig('body', 'token')
     true
+  end
+
+  def host
+    Rails.env.development? ? "http://chenjun-java-sso.xiguacity.club" : ""
   end
 end
 
