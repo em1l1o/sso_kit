@@ -17,9 +17,8 @@ class SsoKit
 
   def verify(token)
     # TODO (zhangjiayuan): use url config file
-    url = "#{host}/server/auth/touch-session"
-    data = { token: token }
-    response = HttpHandler.new(url, 'get', data).run
+    url = "#{host}/server/auth/touch-session?token=#{token}"
+    response = HttpHandler.new(url, 'get').run
     result = HttpHandler.parse_response response
     return false if result['status'] != 200
     # 防止中间人攻击，验证返回的 token 是否与传出的一致
@@ -33,7 +32,7 @@ class SsoKit
 end
 
 class HttpHandler
-  def initialize(url, method, data)
+  def initialize(url, method, data: nil)
     uri = URI(url)
     @request = eval("Net::HTTP::#{method.capitalize}").new(uri)
     @request.set_form_data(data)
