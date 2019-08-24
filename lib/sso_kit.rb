@@ -1,16 +1,18 @@
 # sso client rails edition
 class SsoKit
+  # @param [Binding] binding
   def initialize(binding)
     @binding = binding
   end
 
   # 验证 token
+  # @return [OpenStruct] session
   def verify_token
     cookies = eval('cookies', @binding)
     token = cookies['token']
     # TODO: (zhangjiayuan) 考虑对 raise 的异常进行归类整理
     raise '验证 token 失败' if token.blank? || !verify(token)
-    true
+    @session
   end
 
   private
@@ -23,6 +25,7 @@ class SsoKit
     return false if result['status'] != 200
     # 防止中间人攻击，验证返回的 token 是否与传出的一致
     return false if token != result.dig('body', 'token')
+    @session = OpenStruct.new(result['body'])
     true
   end
 
