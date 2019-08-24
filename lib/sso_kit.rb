@@ -8,7 +8,7 @@ class SsoKit
   def verify_token
     cookies = eval('cookies', @binding)
     token = cookies['token']
-    # TODO (zhangjiayuan): 考虑对 raise 的异常进行归类整理
+    # TODO: (zhangjiayuan) 考虑对 raise 的异常进行归类整理
     raise '验证 token 失败' if token.blank? || !verify(token)
     true
   end
@@ -16,7 +16,7 @@ class SsoKit
   private
 
   def verify(token)
-    # TODO (zhangjiayuan): use url config file
+    # TODO: (zhangjiayuan) use url config file
     url = "#{host}/server/auth/touch-session?token=#{token}"
     response = HttpHandler.new(url, 'get').run
     result = HttpHandler.parse_response response
