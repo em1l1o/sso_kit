@@ -30,7 +30,7 @@ class SsoKit
   end
 
   def host
-    Rails.env.development? ? "http://chenjun-java-sso.xiguacity.club" : ""
+    Rails.env.development? ? "http://chenjun-java-sso.xiguacity.club" : "http://sso.xiguacity.cn"
   end
 end
 
