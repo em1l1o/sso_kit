@@ -19,7 +19,7 @@ class SsoKit
 
   def verify(token)
     # TODO: (zhangjiayuan) use url config file
-    url = "#{host}/server/auth/touch-session?token=#{token}"
+    url = "#{host}/internal/auth/touch-session?token=#{token}"
     response = HttpHandler.new(url, 'get').run
     result = HttpHandler.parse_response response
     return false if result['status'] != 200
