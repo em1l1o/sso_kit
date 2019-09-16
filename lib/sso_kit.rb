@@ -8,7 +8,7 @@ class SsoKit
   # 验证 token
   # @return [OpenStruct] session
   def verify_token
-    cookies = eval('cookies', @binding)
+    cookies = eval('request.cookies', @binding)
     token = cookies['token']
     # TODO: (zhangjiayuan) 考虑对 raise 的异常进行归类整理
     raise '验证 token 失败' if token.blank? || !verify(token)
