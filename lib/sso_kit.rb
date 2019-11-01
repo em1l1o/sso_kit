@@ -19,6 +19,9 @@ class SsoKit
   private
 
   def verify(token)
+    # 如果缓存内有 user_session 则无需 touch SSO
+    @session = Rails.cache.read(token)
+    return true if @session.present?
     # TODO: (zhangjiayuan) use url config file
     url = "#{host}/internal/auth/touch-session?token=#{token}"
     response = HttpHandler.new(url, 'get').run
@@ -27,11 +30,20 @@ class SsoKit
     # 防止中间人攻击，验证返回的 token 是否与传出的一致
     return false if token != result.dig('body', 'token')
     @session = OpenStruct.new(result['body'])
+    # 写入缓存
+    cache_session(token)
     true
   end
 
   def host
     Rails.env.development? ? "http://java-sso-xigua-testing.xiguacity.club" : "https://sso.xiguacity.cn"
+  end
+
+  def cache_session(token)
+    # 计算该 session 距离过期还有多少分钟
+    expire_time_in_minute = ((Time.at(@session.expireTime / 1000) - Time.now) / 60).minutes
+    # 写入缓存，下次请求会优先访问缓存
+    Rails.cache.write(token, @session, expires_in: [expire_time_in_minute, 10.minutes].min)
   end
 end
 
