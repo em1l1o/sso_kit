@@ -2,15 +2,14 @@
 class SsoKit
   # @param [Binding] binding
   def initialize(binding)
-    @binding = binding
+    @request = eval('request', binding)
+    @cookies = eval('cookies', binding)
   end
 
   # 验证 token
   # @return [OpenStruct] session
   def verify_token
-    request = eval('request', @binding)
-    cookies = eval('cookies', @binding)
-    token = request.headers['token'].presence || cookies['token']
+    token = @request.headers['token'].presence || compatible_token
     # TODO: (zhangjiayuan) 考虑对 raise 的异常进行归类整理
     raise '验证 token 失败' if token.blank? || !verify(token)
     @session
@@ -28,6 +27,16 @@ class SsoKit
     return false if token != result.dig('body', 'token')
     @session = OpenStruct.new(result['body'])
     true
+  end
+
+  # 针对无法将 token 放入 header 的请求所做的兼容，例如 rails 生成的页面 (erb, slim 页面等)
+  def compatible_token
+    # 兼容教学后台老页面，以及微信运营平台老页面
+    if @request.path.match?(/\/admin/) || @request.user_agent.match?(/MicroMessenger/i)
+      @cookies['token']
+    else
+      @cookies['study_token']
+    end
   end
 
   def host
