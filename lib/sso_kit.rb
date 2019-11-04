@@ -2,14 +2,14 @@
 class SsoKit
   # @param [Binding] binding
   def initialize(binding)
-    @binding = binding
+    @request = eval('request', binding)
+    @cookies = eval('cookies', binding)
   end
 
   # 验证 token
   # @return [OpenStruct] session
   def verify_token
-    cookies = eval('cookies', @binding)
-    token = cookies['token']
+    token = @request.headers['token'].presence || compatible_token
     # TODO: (zhangjiayuan) 考虑对 raise 的异常进行归类整理
     raise '验证 token 失败' if token.blank? || !verify(token)
     @session
@@ -19,7 +19,7 @@ class SsoKit
 
   def verify(token)
     # TODO: (zhangjiayuan) use url config file
-    url = "#{host}/server/auth/touch-session?token=#{token}"
+    url = "#{host}/internal/auth/touch-session?token=#{token}"
     response = HttpHandler.new(url, 'get').run
     result = HttpHandler.parse_response response
     return false if result['status'] != 200
@@ -29,8 +29,18 @@ class SsoKit
     true
   end
 
+  # 针对无法将 token 放入 header 的请求所做的兼容，例如 rails 生成的页面 (erb, slim 页面等)
+  def compatible_token
+    # 兼容教学后台老页面，以及微信运营平台老页面
+    if @request.path.match?(/\/admin/) || @request.user_agent.match?(/MicroMessenger/i)
+      @cookies['token']
+    else
+      @cookies['study_token']
+    end
+  end
+
   def host
-    Rails.env.development? ? "http://chenjun-java-sso.xiguacity.club" : ""
+    Rails.env.development? ? "http://java-sso-xigua-testing.xiguacity.club" : "https://sso.xiguacity.cn"
   end
 end
 
